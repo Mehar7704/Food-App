@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Our Daily Food Diary — Version 5</title>
+<style>
+:root{--ink:#344054;--muted:#857887;--pink:#e987ad;--pink2:#fff0f5;--lav:#f0ebff;--mint:#e9f8f0;--line:#f0dce5;--white:#fff}
+*{box-sizing:border-box}body{margin:0;font-family:ui-rounded,"Segoe UI",system-ui,sans-serif;color:var(--ink);background:linear-gradient(135deg,#fff7f8,#f5f1ff 55%,#effaf5);min-height:100vh}
+.wrap{max-width:1120px;margin:auto;padding:20px 15px 50px}.hero{text-align:center;padding:17px 10px}.hero .emoji{font-size:39px}.hero h1{margin:7px 0 5px;font-size:clamp(27px,5vw,42px);color:#9e5576}.hero p{margin:0;color:var(--muted)}
+.panel{background:#ffffffed;border:1px solid #fff;border-radius:23px;padding:20px;box-shadow:0 12px 35px #9e78951a;margin:15px 0}
+h2{margin:0 0 14px;color:#925a78;font-size:21px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+label{font-size:13px;font-weight:750;color:#756273;display:block;margin:0 0 6px}input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font:inherit;color:var(--ink);outline:none}
+textarea{min-height:86px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#e99abb;box-shadow:0 0 0 3px #ffe7f0}
+button{border:0;border-radius:13px;padding:11px 16px;background:var(--pink);color:white;font-weight:750;font-size:14px;cursor:pointer}button.secondary{background:var(--lav);color:#765a9b}button.light{background:var(--pink2);color:#a04e73}button.danger{background:#fff0ef;color:#b54c4c}button:disabled{opacity:.55;cursor:wait}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.muted{color:var(--muted);font-size:13px}.hidden{display:none!important}.status{padding:10px 12px;border-radius:12px;background:#f5f0ff;margin:11px 0;font-size:14px;white-space:pre-wrap}
+.authgrid{max-width:560px;margin:15px auto}.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0}.tabs button{background:#f5edf4;color:#80677a}.tabs button.active{background:var(--pink);color:white}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin:13px 0}
+.meals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.meal{border:1px solid #f3e5eb;border-radius:17px;padding:14px;background:#fff;animation:rise .25s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.mealhead{display:flex;justify-content:space-between;gap:8px;align-items:center}.pill{font-size:12px;background:#fceaf1;color:#a04e73;padding:5px 9px;border-radius:20px;font-weight:750}.edited{font-size:11px;background:#eaf7ef;color:#39815c;padding:4px 8px;border-radius:20px;font-weight:750}
+.meal h3{margin:10px 0 5px;font-size:17px}.meal p{white-space:pre-wrap;margin:0 0 9px;line-height:1.45}.mealfoot{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}.smallbtn{padding:7px 10px;font-size:12px}
+.empty{text-align:center;padding:25px;color:#8b7b89;background:#fff8fb;border-radius:15px;grid-column:1/-1}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.stat{background:linear-gradient(135deg,#fff5f8,#f5f0ff);border-radius:16px;padding:14px;text-align:center}.stat strong{display:block;font-size:25px;color:#a85f82}.stat span{font-size:12px;color:var(--muted)}
+hr{border:0;border-top:1px solid #f3e7ed;margin:16px 0}.help{background:#f7f4ff;border-radius:14px;padding:13px;font-size:13px;line-height:1.5}
+@media(max-width:700px){.grid,.meals{grid-template-columns:1fr}.filters{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.panel{padding:16px}.wrap{padding:10px}.topline{align-items:flex-start}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="hero"><div class="emoji">🥑 🍓 🥗</div><h1>Our Daily Food Diary</h1><p>Share meals, keep memories, and make everyday food fun 🌷</p><div class="muted">Version 5</div></header>
+
+<section id="config" class="panel authgrid">
+<h2>Connect your diary</h2><p class="muted">Enter your existing Supabase Project URL and Publishable Key. Do not use a Secret/service_role key.</p>
+<div style="margin:12px 0"><label>Supabase Project URL</label><input id="projectUrl" placeholder="https://your-project-id.supabase.co"></div>
+<div style="margin:12px 0"><label>Supabase Publishable Key</label><input id="anonKey" placeholder="sb_publishable_..."></div>
+<div class="actions"><button id="connectBtn">Connect</button></div><div id="configMsg" class="status hidden"></div>
+</section>
+
+<section id="auth" class="panel authgrid hidden">
+<h2>Welcome to our diary 💛</h2><div class="grid">
+<div><label>Email</label><input id="email" type="email" autocomplete="username" placeholder="you@example.com"></div>
+<div><label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Your password"></div></div>
+<div class="actions"><button id="loginBtn">Log in</button><button class="secondary" id="signupBtn">Create account</button></div>
+<p class="muted">Each member creates their own account. All signed-in members can view shared meals.</p><div id="authMsg" class="status hidden"></div>
+</section>
+
+<section id="app" class="hidden">
+<div class="panel">
+<div class="topline"><div><h2 style="margin-bottom:4px">Add a meal 🍽️</h2><div class="muted" id="signedIn"></div></div><button class="light" id="logoutBtn">Log out</button></div>
+<div class="grid" style="margin-top:15px">
+<div><label>Display name</label><input id="displayName" placeholder="e.g. Ahsan"></div>
+<div><label>Meal type</label><select id="mealType"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option></select></div>
+<div><label>Date</label><input id="mealDate" type="date"></div><div><label>Food details</label><input id="details" placeholder="e.g. Egg, paratha and tea"></div>
+</div><div class="actions"><button id="saveBtn">Save meal</button></div><div id="saveMsg" class="status hidden"></div>
+</div>
+
+<div id="editPanel" class="panel hidden">
+<div class="topline"><h2>Edit your meal ✏️</h2><button class="light" id="cancelEdit">Cancel</button></div>
+<input type="hidden" id="editId">
+<div class="grid">
+<div><label>Display name</label><input id="editName"></div>
+<div><label>Meal type</label><select id="editType"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option></select></div>
+<div><label>Date</label><input id="editDate" type="date"></div>
+<div><label>Food details</label><input id="editDetails" placeholder="Food and notes"></div>
+</div><div class="actions"><button id="updateBtn">Save changes</button></div><div id="editMsg" class="status hidden"></div>
+</div>
+
+<div class="panel">
+<div class="topline"><h2>Our shared meals 🌼</h2><button class="secondary" id="clearFilters">Clear filters</button></div>
+<div class="filters">
+<div><label>Search meals</label><input id="search" placeholder="Search food or member name..."></div>
+<div><label>Filter by date</label><input id="filterDate" type="date"></div>
+<div><label>Meal type</label><select id="filterType"><option>All</option><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option></select></div>
+</div>
+<div id="mealList" class="meals"><div class="empty">Your shared meals will appear here.</div></div>
+</div>
+
+<div class="panel">
+<h2>Food report 📊</h2><div class="topline"><p class="muted">Counts for the selected period.</p><select id="reportPeriod" style="max-width:170px"><option value="week">This week</option><option value="month">This month</option><option value="all">All time</option></select></div>
+<div class="stats"><div class="stat"><strong id="totalCount">0</strong><span>Total meals</span></div><div class="stat"><strong id="breakfastCount">0</strong><span>Breakfast</span></div><div class="stat"><strong id="lunchCount">0</strong><span>Lunch</span></div><div class="stat"><strong id="dinnerCount">0</strong><span>Dinner</span></div></div>
+</div>
+<div class="help">💡 <b>Joining tip:</b> Share your deployed website link with another member. They open the same link, create their own account, and then both of you can see shared meals.</div>
+</section>
+</main>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const $=id=>document.getElementById(id);let supabase=null,currentUser=null,allMeals=[];
+const today=()=>new Date().toLocaleDateString('en-CA');
+$('mealDate').value=today();
+function msg(id,s){$(id).textContent=s;$(id).classList.remove('hidden')}function hide(id){$(id).classList.add('hidden')}
+function show(){ $('config').classList.toggle('hidden',!!supabase);$('auth').classList.toggle('hidden',!supabase||!!currentUser);$('app').classList.toggle('hidden',!currentUser)}
+function cfg(){return{url:localStorage.getItem('diary_url'),key:localStorage.getItem('diary_key')}}
+async function connect(url,key){try{if(!url.startsWith('https://')||!key)throw Error('Enter a valid Supabase Project URL and Publishable Key.');supabase=createClient(url,key);const {data:{session},error}=await supabase.auth.getSession();if(error)throw error;currentUser=session?.user||null;supabase.auth.onAuthStateChange((_e,s)=>{currentUser=s?.user||null;show();if(currentUser){$('signedIn').textContent='Signed in as '+currentUser.email;loadMeals()}});show();if(currentUser){$('signedIn').textContent='Signed in as '+currentUser.email;loadMeals()}}catch(e){msg('configMsg',e.message)}}
+$('connectBtn').onclick=()=>{const url=$('projectUrl').value.trim().replace(/\/$/,'');const key=$('anonKey').value.trim();localStorage.setItem('diary_url',url);localStorage.setItem('diary_key',key);hide('configMsg');connect(url,key)};
+const saved=cfg();if(saved.url&&saved.key){$('projectUrl').value=saved.url;$('anonKey').value=saved.key;connect(saved.url,saved.key)}
+$('loginBtn').onclick=async()=>{hide('authMsg');const {error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)msg('authMsg',error.message)};
+$('signupBtn').onclick=async()=>{hide('authMsg');const {data,error}=await supabase.auth.signUp({email:$('email').value.trim(),password:$('password').value});if(error)msg('authMsg',error.message);else msg('authMsg',data.session?'Account created. You are signed in.':'Account created. Check your email to confirm, then log in.')};
+$('logoutBtn').onclick=()=>supabase.auth.signOut();
+async function loadMeals(){if(!currentUser)return;const {data,error}=await supabase.from('meals').select('id,user_id,display_name,user_email,meal_type,meal_date,details,photo_url,created_at,edited_at').order('meal_date',{ascending:false}).order('created_at',{ascending:false});if(error){$('mealList').innerHTML='';msg('saveMsg','Could not load meals. If error mentions edited_at, run the Version 5 SQL file once. '+error.message);return}allMeals=data||[];render()}
+function inReport(m){const period=$('reportPeriod').value;if(period==='all')return true;const d=new Date(m.meal_date+'T12:00:00'),now=new Date();if(period==='month')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();const start=new Date(now);start.setHours(0,0,0,0);const day=(start.getDay()+6)%7;start.setDate(start.getDate()-day);return d>=start&&d<=now}
+function render(){const term=$('search').value.trim().toLowerCase(),date=$('filterDate').value,type=$('filterType').value;const rows=allMeals.filter(m=>(!term||(m.details||'').toLowerCase().includes(term)||(m.display_name||'').toLowerCase().includes(term))&&(!date||m.meal_date===date)&&(type==='All'||m.meal_type===type));const list=$('mealList');list.innerHTML='';if(!rows.length){list.innerHTML='<div class="empty">No matching meals. Try another search or add a meal 🌸</div>'}for(const m of rows){const card=document.createElement('article');card.className='meal';const head=document.createElement('div');head.className='mealhead';const pill=document.createElement('span');pill.className='pill';pill.textContent=m.meal_type;const dateEl=document.createElement('span');dateEl.className='muted';dateEl.textContent=m.meal_date;head.append(pill,dateEl);const h=document.createElement('h3');h.textContent=m.display_name||'Diary member';const p=document.createElement('p');p.textContent=m.details;card.append(head,h,p);if(m.edited_at){const badge=document.createElement('span');badge.className='edited';badge.textContent='Edited ✏️';card.append(badge)}const foot=document.createElement('div');foot.className='mealfoot';const owner=document.createElement('span');owner.className='muted';owner.textContent=m.user_email||'';foot.append(owner);if(m.user_id===currentUser.id){const controls=document.createElement('div');controls.className='actions';controls.style.margin='0';const edit=document.createElement('button');edit.className='secondary smallbtn';edit.textContent='Edit';edit.onclick=()=>startEdit(m);const del=document.createElement('button');del.className='danger smallbtn';del.textContent='Delete';del.onclick=()=>deleteMeal(m);controls.append(edit,del);foot.append(controls)}card.append(foot);list.append(card)}const period=allMeals.filter(inReport);$('totalCount').textContent=period.length;$('breakfastCount').textContent=period.filter(x=>x.meal_type==='Breakfast').length;$('lunchCount').textContent=period.filter(x=>x.meal_type==='Lunch').length;$('dinnerCount').textContent=period.filter(x=>x.meal_type==='Dinner').length}
+$('search').oninput=render;$('filterDate').onchange=render;$('filterType').onchange=render;$('reportPeriod').onchange=render;$('clearFilters').onclick=()=>{$('search').value='';$('filterDate').value='';$('filterType').value='All';render()};
+$('saveBtn').onclick=async()=>{hide('saveMsg');const details=$('details').value.trim();if(!details){msg('saveMsg','Please enter food details.');return}const b=$('saveBtn');b.disabled=true;try{const {error}=await supabase.from('meals').insert({user_id:currentUser.id,display_name:$('displayName').value.trim()||currentUser.email.split('@')[0],user_email:currentUser.email,meal_type:$('mealType').value,meal_date:$('mealDate').value||today(),details});if(error)throw error;$('details').value='';msg('saveMsg','Meal saved successfully! 🌷');await loadMeals()}catch(e){msg('saveMsg',e.message)}finally{b.disabled=false}};
+function startEdit(m){$('editId').value=m.id;$('editName').value=m.display_name||'';$('editType').value=m.meal_type;$('editDate').value=m.meal_date;$('editDetails').value=m.details;$('editPanel').classList.remove('hidden');$('editPanel').scrollIntoView({behavior:'smooth',block:'start'});hide('editMsg')}
+$('cancelEdit').onclick=()=>$('editPanel').classList.add('hidden');
+$('updateBtn').onclick=async()=>{hide('editMsg');const id=$('editId').value,details=$('editDetails').value.trim();if(!details){msg('editMsg','Food details cannot be empty.');return}const b=$('updateBtn');b.disabled=true;try{const {error}=await supabase.from('meals').update({display_name:$('editName').value.trim()||currentUser.email.split('@')[0],meal_type:$('editType').value,meal_date:$('editDate').value,details,edited_at:new Date().toISOString()}).eq('id',id).eq('user_id',currentUser.id);if(error)throw error;$('editPanel').classList.add('hidden');msg('saveMsg','Your meal has been updated. Edited ✏️');await loadMeals()}catch(e){msg('editMsg',e.message)}finally{b.disabled=false}};
+async function deleteMeal(m){if(!confirm('Delete this meal? This cannot be undone.'))return;const {error}=await supabase.from('meals').delete().eq('id',m.id).eq('user_id',currentUser.id);if(error)msg('saveMsg',error.message);else{msg('saveMsg','Meal deleted.');await loadMeals()}}
+</script></body></html>
